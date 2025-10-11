@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MauiAppTCC2.Services;
 
 namespace MauiAppTCC2
 {
@@ -7,17 +7,18 @@ namespace MauiAppTCC2
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
             builder
                 .UseMauiApp<App>()
+                .UseLocalNotification() // habilita notificações locais
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-#if DEBUG
-    		builder.Logging.AddDebug();
-#endif
+            // 🔹 Registrando NotificationService como Singleton
+            builder.Services.AddSingleton<Services.INotificationService, NotificationService>();
 
             return builder.Build();
         }

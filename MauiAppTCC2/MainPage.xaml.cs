@@ -1,24 +1,37 @@
-﻿namespace MauiAppTCC2
+﻿using MauiAppTCC.Models; // reconhecer "Vacina"
+using MauiAppTCC.Services;
+using MauiAppTCC2.Models;
+using MauiAppTCC2.Services;
+using Microsoft.Maui.Controls;
+
+namespace MauiAppTCC2
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+        private readonly INotificationService _notificationService;
 
-        public MainPage()
+        public MainPage(INotificationService notificationService)
         {
             InitializeComponent();
+            _notificationService = notificationService;
         }
 
-        private void OnCounterClicked(object? sender, EventArgs e)
+        private async void OnTestNotificationClicked(object sender, EventArgs e)
         {
-            count++;
+            // Criando uma vacina de exemplo
+            var vacinaFake = new Vacina
+            {
+                Id = 1,
+                Nome = "Antirrábica",
+                PetId = 1,
+                DataValidade = DateTime.Now.AddDays(10)
+            };
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+            await _notificationService.ScheduleVaccineNotification(vacinaFake);
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            await DisplayAlert("Notificação Agendada ✅",
+                "Foi agendada uma notificação para simular a vacina 'Antirrábica'.",
+                "OK");
         }
     }
 }

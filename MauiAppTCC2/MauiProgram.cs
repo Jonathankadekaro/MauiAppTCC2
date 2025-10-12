@@ -22,17 +22,13 @@ namespace MauiAppTCC2
             builder.Logging.AddDebug();
 #endif
 
-            // ✅ REGISTRAR SERVIÇOS
+            // ✅ REGISTRE COMO SINGLETON (MESMA INSTÂNCIA SEMPRE)
             builder.Services.AddSingleton<DatabaseContext>();
             builder.Services.AddSingleton<INotificationService, NotificationService>();
-
-            // ✅ REGISTRAR VIEWMODELS
             builder.Services.AddTransient<PetViewModel>();
-
-            // ✅ REGISTRAR PÁGINAS
             builder.Services.AddTransient<MainPage>();
-            builder.Services.AddTransient<VacinaListPage>();
             builder.Services.AddTransient<AddPetPage>();
+            builder.Services.AddTransient<VacinaListPage>();
 
             return builder.Build();
         }

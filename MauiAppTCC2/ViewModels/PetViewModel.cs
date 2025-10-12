@@ -16,7 +16,7 @@ namespace MauiAppTCC2.ViewModels
         private Pet _selectedPet;
 
         public ObservableCollection<Pet> Pets { get; } = new();
-        public ObservableCollection<VacinaPet> Vacinas { get; } = new(); // ✅ USANDO VacinaPet
+        public ObservableCollection<VacinaPet> Vacinas { get; } = new();
 
         public Pet SelectedPet
         {
@@ -36,10 +36,12 @@ namespace MauiAppTCC2.ViewModels
         public ICommand ShowVacinasCommand { get; }
         public ICommand RefreshCommand { get; }
 
+        // ✅ CONSTRUTOR PÚBLICO SEM PARÂMETROS (PARA XAML)
         public PetViewModel() : this(new DatabaseContext())
         {
         }
 
+        // ✅ CONSTRUTOR COM PARÂMETROS (PARA INJEÇÃO)
         public PetViewModel(DatabaseContext database)
         {
             _database = database;
@@ -60,11 +62,14 @@ namespace MauiAppTCC2.ViewModels
             try
             {
                 IsBusy = true;
-                Pets.Clear();
-
                 var pets = await _database.GetPetsAsync();
+
+                Pets.Clear();
                 foreach (var pet in pets)
                     Pets.Add(pet);
+
+                // ✅ DEBUG: MOSTRA QUANTOS PETS FORAM CARREGADOS
+                System.Diagnostics.Debug.WriteLine($"✅ Pets carregados: {pets.Count}");
             }
             catch (Exception ex)
             {
@@ -78,7 +83,23 @@ namespace MauiAppTCC2.ViewModels
 
         private async Task AddPetAsync()
         {
-            await Shell.Current.GoToAsync(nameof(AddPetPage));
+            try
+            {
+                // ✅ USA A MESMA INSTÂNCIA DO DATABASE
+                var addPetPage = new AddPetPage(_database);
+
+                // ✅ EVENTO QUE GARANTE A ATUALIZAÇÃO
+                addPetPage.Disappearing += async (sender, e) =>
+                {
+                    await LoadPetsAsync(); // ✅ RECARREGA A LISTA
+                };
+
+                await Application.Current.MainPage.Navigation.PushAsync(addPetPage);
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Erro", $"Falha: {ex.Message}", "OK");
+            }
         }
 
         private async Task DeletePetAsync(Pet pet)
@@ -95,7 +116,7 @@ namespace MauiAppTCC2.ViewModels
                 try
                 {
                     await _database.DeletePetAsync(pet);
-                    Pets.Remove(pet);
+                    await LoadPetsAsync(); // ✅ RECARREGA A LISTA
                     await Application.Current.MainPage.DisplayAlert("Sucesso", "Pet excluído com sucesso", "OK");
                 }
                 catch (Exception ex)

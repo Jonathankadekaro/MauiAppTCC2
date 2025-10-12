@@ -1,6 +1,4 @@
-﻿using MauiAppTCC.Models; // reconhecer "Vacina"
-using MauiAppTCC.Services;
-using MauiAppTCC2.Models;
+﻿using MauiAppTCC2.Models;
 using MauiAppTCC2.Services;
 using Microsoft.Maui.Controls;
 
@@ -18,8 +16,7 @@ namespace MauiAppTCC2
 
         private async void OnTestNotificationClicked(object sender, EventArgs e)
         {
-            // Criando uma vacina de exemplo
-            var vacinaFake = new Vacina
+            var vacinaFake = new VacinaPet
             {
                 Id = 1,
                 Nome = "Antirrábica",

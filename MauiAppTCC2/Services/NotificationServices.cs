@@ -3,12 +3,11 @@ using MauiAppTCC2.Models;
 using Plugin.LocalNotification;
 using System.Diagnostics;
 
-
 namespace MauiAppTCC2.Services
 {
     public interface INotificationService
     {
-        Task ScheduleVaccineNotification(Vacina vacina);
+        Task ScheduleVaccineNotification(VacinaPet vacina); // ✅ ATUALIZADO
         Task CheckUpcomingVaccines();
         Task CancelNotification(int notificationId);
     }
@@ -17,19 +16,18 @@ namespace MauiAppTCC2.Services
     {
         private readonly DatabaseContext _database;
 
-        public NotificationService()
+        public NotificationService(DatabaseContext database)
         {
-            _database = new DatabaseContext();
+            _database = database;
         }
 
-        public async Task ScheduleVaccineNotification(Vacina vacina)
+        public async Task ScheduleVaccineNotification(VacinaPet vacina) // ✅ ATUALIZADO
         {
             try
             {
                 var pet = await _database.GetPetAsync(vacina.PetId);
                 if (pet == null) return;
 
-                // Notificação 30 dias antes
                 var notificationDate = vacina.DataValidade.AddDays(-30);
 
                 if (notificationDate > DateTime.Now)
@@ -43,34 +41,13 @@ namespace MauiAppTCC2.Services
                         {
                             NotifyTime = notificationDate
                         },
-                        CategoryType = NotificationCategoryType.Reminder,
-                        Android = new AndroidOptions
-                        {
-                            ChannelId = "vaccine_reminders"
-                        }
+                        CategoryType = NotificationCategoryType.Reminder
                     };
 
-                    await LocalNotificationCenter.Current.Show(request);
+                    LocalNotificationCenter.Current.Show(request);
+
                     vacina.NotificacaoAgendada = true;
                     await _database.SaveVacinaAsync(vacina);
-                }
-
-                // Notificação 7 dias antes (segunda notificação)
-                var notificationDate7Days = vacina.DataValidade.AddDays(-7);
-                if (notificationDate7Days > DateTime.Now)
-                {
-                    var request7Days = new NotificationRequest
-                    {
-                        NotificationId = vacina.Id + 10000, // ID diferente
-                        Title = "💉 Vacina Próxima do Vencimento",
-                        Description = $"{pet.Nome} - {vacina.Nome} vence em 7 dias!",
-                        Schedule = new NotificationRequestSchedule
-                        {
-                            NotifyTime = notificationDate7Days
-                        }
-                    };
-
-                    await LocalNotificationCenter.Current.Show(request7Days);
                 }
             }
             catch (Exception ex)
@@ -101,9 +78,10 @@ namespace MauiAppTCC2.Services
             }
         }
 
-        public async Task CancelNotification(int notificationId)
+        public Task CancelNotification(int notificationId)
         {
-            await LocalNotificationCenter.Current.Cancel(notificationId);
+            LocalNotificationCenter.Current.Cancel(notificationId);
+            return Task.CompletedTask;
         }
     }
 }

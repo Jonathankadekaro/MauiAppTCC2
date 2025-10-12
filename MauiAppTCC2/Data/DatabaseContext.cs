@@ -1,133 +1,147 @@
-﻿using MauiAppTCC.ViewModels;
-using SQLite;
-using System;
+﻿using MauiAppTCC2.Models;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Plugin.LocalNotification;
-using MauiAppTCC2.Data;
-using MauiAppTCC2.Models;
+using System;
 
-namespace MauiAppTCC.Data
+namespace MauiAppTCC2.Data
 {
     public class DatabaseContext
     {
-        private SQLiteAsyncConnection _database;
-        private bool _initialized = false;
-
-        public object SQLiteOpenFlags { get; private set; }
+        // 📊 DADOS EM MEMÓRIA
+        private ObservableCollection<Pet> _pets = new ObservableCollection<Pet>();
+        private ObservableCollection<VacinaPet> _vacinas = new ObservableCollection<VacinaPet>();
+        private int _nextPetId = 1;
+        private int _nextVacinaId = 1;
 
         public DatabaseContext()
         {
-            InitializeAsync().Wait();
-        }
-
-        private async Task InitializeAsync()
-        {
-            if (_initialized) return;
-
-            try
-            {
-                var databasePath = Path.Combine(FileSystem.AppDataDirectory, "petvaccine.db3");
-
-                _database = new SQLiteAsyncConnection(databasePath,
-                    SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache);
-
-                // Criar tabelas
-                await _database.CreateTableAsync<Pet>();
-                await _database.CreateTableAsync<Vacina>();
-
-                _initialized = true;
-
-                Debug.WriteLine("✅ Banco de dados inicializado com sucesso!");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"❌ Erro ao inicializar banco: {ex.Message}");
-                throw;
-            }
+            // Dados de exemplo para teste
+            _pets.Add(new Pet { Id = _nextPetId++, Nome = "Rex", Especie = "Cachorro", Raca = "Vira-lata", DataNascimento = DateTime.Now.AddYears(-2) });
+            _pets.Add(new Pet { Id = _nextPetId++, Nome = "Mimi", Especie = "Gato", Raca = "Siamês", DataNascimento = DateTime.Now.AddYears(-1) });
         }
 
         // 📊 OPERAÇÕES PET
         public async Task<List<Pet>> GetPetsAsync()
         {
-            await InitializeAsync();
-            return await _database.Table<Pet>().OrderBy(p => p.Nome).ToListAsync();
+            await Task.Delay(100); // Simula operação async
+            return _pets.OrderBy(p => p.Nome).ToList();
         }
 
         public async Task<Pet> GetPetAsync(int id)
         {
-            await InitializeAsync();
-            return await _database.Table<Pet>().Where(p => p.Id == id).FirstOrDefaultAsync();
+            await Task.Delay(100);
+            return _pets.FirstOrDefault(p => p.Id == id);
         }
 
         public async Task<int> SavePetAsync(Pet pet)
         {
-            await InitializeAsync();
+            await Task.Delay(100);
 
             if (pet.Id == 0)
-                return await _database.InsertAsync(pet);
+            {
+                pet.Id = _nextPetId++;
+                _pets.Add(pet);
+                return 1;
+            }
             else
-                return await _database.UpdateAsync(pet);
+            {
+                var existing = _pets.FirstOrDefault(p => p.Id == pet.Id);
+                if (existing != null)
+                {
+                    _pets.Remove(existing);
+                    _pets.Add(pet);
+                }
+                return 1;
+            }
         }
 
         public async Task<int> DeletePetAsync(Pet pet)
         {
-            await InitializeAsync();
+            await Task.Delay(100);
 
-            // Primeiro deleta todas as vacinas do pet
-            var vacinas = await GetVacinasByPetAsync(pet.Id);
-            foreach (var vacina in vacinas)
+            // Deletar vacinas do pet
+            var vacinasPet = _vacinas.Where(v => v.PetId == pet.Id).ToList();
+            foreach (var vacina in vacinasPet)
             {
-                await _database.DeleteAsync(vacina);
+                _vacinas.Remove(vacina);
             }
 
-            return await _database.DeleteAsync(pet);
+            _pets.Remove(pet);
+            return 1;
         }
 
         // 💉 OPERAÇÕES VACINA
-        public async Task<List<Vacina>> GetVacinasByPetAsync(int petId)
+        public async Task<List<VacinaPet>> GetVacinasByPetAsync(int petId)
         {
-            await InitializeAsync();
-            return await _database.Table<Vacina>()
-                                .Where(v => v.PetId == petId)
-                                .OrderByDescending(v => v.DataAplicacao)
-                                .ToListAsync();
+            await Task.Delay(100);
+            return _vacinas.Where(v => v.PetId == petId)
+                          .OrderByDescending(v => v.DataAplicacao)
+                          .ToList();
         }
 
-        public async Task<List<Vacina>> GetProximasVacinasVencerAsync()
+        public async Task<int> SaveVacinaAsync(VacinaPet vacina)
         {
-            await InitializeAsync();
-            var dataLimite = DateTime.Now.AddDays(30);
-            return await _database.Table<Vacina>()
-                                .Where(v => v.DataValidade <= dataLimite &&
-                                           v.DataValidade >= DateTime.Now)
-                                .OrderBy(v => v.DataValidade)
-                                .ToListAsync();
-        }
-
-        public async Task<int> SaveVacinaAsync(Vacina vacina)
-        {
-            await InitializeAsync();
+            await Task.Delay(100);
 
             if (vacina.Id == 0)
-                return await _database.InsertAsync(vacina);
+            {
+                vacina.Id = _nextVacinaId++;
+                _vacinas.Add(vacina);
+                return 1;
+            }
             else
-                return await _database.UpdateAsync(vacina);
+            {
+                var existing = _vacinas.FirstOrDefault(v => v.Id == vacina.Id);
+                if (existing != null)
+                {
+                    _vacinas.Remove(existing);
+                    _vacinas.Add(vacina);
+                }
+                return 1;
+            }
         }
 
-        public async Task<int> DeleteVacinaAsync(Vacina vacina)
+        public async Task<int> DeleteVacinaAsync(VacinaPet vacina)
         {
-            await InitializeAsync();
-            return await _database.DeleteAsync(vacina);
+            await Task.Delay(100);
+            _vacinas.Remove(vacina);
+            return 1;
         }
 
-        public async Task<List<Vacina>> GetAllVacinasAsync()
+        public async Task<List<VacinaPet>> GetAllVacinasAsync()
         {
-            await InitializeAsync();
-            return await _database.Table<Vacina>().ToListAsync();
+            await Task.Delay(100);
+            return _vacinas.ToList();
+        }
+
+        // ⏰ MÉTODOS COM FILTROS
+        public async Task<List<VacinaPet>> GetProximasVacinasVencerAsync()
+        {
+            await Task.Delay(100);
+            var dataLimite = DateTime.Now.AddDays(30);
+            return _vacinas.Where(v => v.DataValidade <= dataLimite &&
+                                      v.DataValidade >= DateTime.Now)
+                          .OrderBy(v => v.DataValidade)
+                          .ToList();
+        }
+
+        public async Task<List<VacinaPet>> GetVacinasVencidasAsync()
+        {
+            await Task.Delay(100);
+            return _vacinas.Where(v => v.DataValidade < DateTime.Now)
+                          .OrderBy(v => v.DataValidade)
+                          .ToList();
+        }
+
+        // 🔍 BUSCAR PETS
+        public async Task<List<Pet>> SearchPetsAsync(string searchTerm)
+        {
+            await Task.Delay(100);
+            return _pets.Where(p => p.Nome.ToLower().Contains(searchTerm.ToLower()))
+                       .OrderBy(p => p.Nome)
+                       .ToList();
         }
     }
 }

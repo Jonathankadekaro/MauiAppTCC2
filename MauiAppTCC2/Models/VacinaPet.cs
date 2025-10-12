@@ -1,24 +1,18 @@
-﻿using Plugin.LocalNotification;
-using SQLite;
+﻿using SQLite;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MauiAppTCC2.Models
 {
-    public class Vacinapet
+    public class VacinaPet
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
         [Indexed]
-        public int PetId { get; set; } // Chave estrangeira
+        public int PetId { get; set; }
 
         [MaxLength(100)]
-        public string Nome { get; set; } // V8, V10, Antirrábica, etc.
+        public string Nome { get; set; }
 
         [MaxLength(100)]
         public string Fabricante { get; set; }
@@ -30,7 +24,7 @@ namespace MauiAppTCC2.Models
         public DateTime DataValidade { get; set; }
 
         [MaxLength(50)]
-        public string Dose { get; set; } // 1ª dose, Reforço anual
+        public string Dose { get; set; }
 
         [MaxLength(100)]
         public string VeterinarioResponsavel { get; set; }
@@ -44,7 +38,6 @@ namespace MauiAppTCC2.Models
         public bool EstaVencida => DataValidade < DateTime.Now;
 
         [Ignore]
-        public bool VenceEm30Dias => DataValidade <= DateTime.Now.AddDays(30) &&
-                                   DataValidade > DateTime.Now;
+        public bool VenceEm30Dias => DataValidade <= DateTime.Now.AddDays(30) && DataValidade > DateTime.Now;
     }
 }

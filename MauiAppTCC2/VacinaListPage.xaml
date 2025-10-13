@@ -10,23 +10,22 @@
 
             <!-- CABEÇALHO -->
             <Frame BackgroundColor="#512BD4" 
-                   Padding="20,15"
-                   CornerRadius="15"
-                   HorizontalOptions="Fill"
-                   HasShadow="True">
+       Padding="20,15"
+       CornerRadius="15"
+       HorizontalOptions="Fill"
+       HasShadow="True">
                 <VerticalStackLayout Spacing="8">
                     <Label x:Name="lblTitulo" 
-                           Text="💉 Vacinas" 
-                           FontSize="24" 
-                           HorizontalOptions="Center" 
-                           FontAttributes="Bold"
-                           TextColor="White"/>
+               Text="Vacinas" 
+               FontSize="24" 
+               HorizontalOptions="Center" 
+               FontAttributes="Bold"
+               TextColor="White"/>
 
-                    <Label x:Name="lblPetNome" 
-                           Text="Carregando..." 
-                           FontSize="16" 
-                           HorizontalOptions="Center"
-                           TextColor="#E0E0E0"/>
+                    <Label Text="Sistema de controle de vacinas para pet" 
+               FontSize="16" 
+               HorizontalOptions="Center"
+               TextColor="#E0E0E0"/>
                 </VerticalStackLayout>
             </Frame>
 
@@ -41,12 +40,31 @@
                     CornerRadius="12"
                     HorizontalOptions="Fill"/>
 
-            <!-- CONTADOR -->
-            <Label x:Name="lblContador"
-                   Text="Total: 0 vacina(s)"
-                   FontSize="14"
-                   TextColor="#666"
-                   HorizontalOptions="Center"/>
+            <!-- CONTADOR E STATUS -->
+            <Frame BackgroundColor="White" 
+                   Padding="15"
+                   CornerRadius="12"
+                   HasShadow="True"
+                   BorderColor="#E0E0E0">
+                <HorizontalStackLayout Spacing="15" HorizontalOptions="Center">
+                    <Frame BackgroundColor="#E3F2FD" Padding="12,8" CornerRadius="8">
+                        <Label x:Name="lblContador" 
+                               Text="0" 
+                               FontSize="20" 
+                               FontAttributes="Bold"
+                               TextColor="#1976D2"
+                               HorizontalOptions="Center"/>
+                    </Frame>
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label Text="Vacinas Cadastradas" 
+                               FontSize="14" 
+                               TextColor="#666"/>
+                        <Label Text="Total" 
+                               FontSize="12" 
+                               TextColor="#999"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
 
             <!-- LISTA DE VACINAS -->
             <Frame BackgroundColor="White" 
@@ -65,7 +83,6 @@
                                TextColor="#333"/>
                     </Frame>
 
-                    <!-- LISTA DE VACINAS -->
                     <CollectionView x:Name="vacinasCollection">
                         <CollectionView.EmptyView>
                             <VerticalStackLayout HorizontalOptions="Center" 
@@ -97,17 +114,36 @@
                                        CornerRadius="12"
                                        HasShadow="True">
 
-                                    <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto" 
+                                          RowDefinitions="Auto,Auto,Auto,Auto"
+                                          RowSpacing="6"
+                                          ColumnSpacing="10">
+
                                         <!-- NOME DA VACINA -->
-                                        <Label Text="{Binding Nome}" 
+                                        <Label Grid.Row="0" Grid.Column="0"
+                                               Text="{Binding Nome}" 
                                                FontSize="16" 
                                                FontAttributes="Bold"
                                                TextColor="#333"/>
 
+                                        <!-- STATUS -->
+                                        <Frame Grid.Row="0" Grid.Column="1"
+                                               BackgroundColor="{Binding StatusColor}"
+                                               Padding="8,4"
+                                               CornerRadius="8"
+                                               HasShadow="False">
+                                            <Label Text="{Binding StatusTexto}" 
+                                                   FontSize="11" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"/>
+                                        </Frame>
+
                                         <!-- DATAS -->
-                                        <HorizontalStackLayout Spacing="15">
+                                        <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                             Spacing="20">
                                             <VerticalStackLayout Spacing="2">
-                                                <Label Text="Aplicada:" 
+                                                <Label Text="📅 Aplicada:" 
                                                        FontSize="12" 
                                                        TextColor="#666"/>
                                                 <Label Text="{Binding DataAplicacao, StringFormat='{0:dd/MM/yyyy}'}" 
@@ -117,26 +153,27 @@
                                             </VerticalStackLayout>
 
                                             <VerticalStackLayout Spacing="2">
-                                                <Label Text="Vence:" 
+                                                <Label Text="⏰ Vence:" 
                                                        FontSize="12" 
                                                        TextColor="#666"/>
                                                 <Label Text="{Binding DataValidade, StringFormat='{0:dd/MM/yyyy}'}" 
                                                        FontSize="12" 
-                                                       TextColor="{Binding EstaVencida, Converter={x:StaticResource CorStatusVacinaConverter}}"
+                                                       TextColor="{Binding StatusColor}"
                                                        FontAttributes="Bold"/>
                                             </VerticalStackLayout>
                                         </HorizontalStackLayout>
 
-                                        <!-- INFORMAÇÕES ADICIONAIS -->
-                                        <HorizontalStackLayout Spacing="10">
-                                            <!-- DOSE COM BACKGROUND -->
+                                        <!-- INFORMAÇÕES -->
+                                        <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                                             Spacing="15">
                                             <Frame BackgroundColor="#F0F0F0"
-                                                   Padding="6,2"
+                                                   Padding="6,3"
                                                    CornerRadius="4"
                                                    HasShadow="False">
                                                 <Label Text="{Binding Dose}" 
                                                        FontSize="11" 
-                                                       TextColor="#888"/>
+                                                       TextColor="#666"
+                                                       FontAttributes="Bold"/>
                                             </Frame>
 
                                             <Label Text="{Binding Fabricante}" 
@@ -144,26 +181,23 @@
                                                    TextColor="#888"/>
                                         </HorizontalStackLayout>
 
-                                        <!-- VETERINÁRIO E CLÍNICA -->
-                                        <HorizontalStackLayout Spacing="10">
+                                        <!-- VETERINÁRIO -->
+                                        <HorizontalStackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                                             Spacing="8">
+                                            <Label Text="👨‍⚕️" 
+                                                   FontSize="11" 
+                                                   TextColor="#666"/>
                                             <Label Text="{Binding VeterinarioResponsavel}" 
                                                    FontSize="11" 
-                                                   TextColor="#888"/>
+                                                   TextColor="#666"/>
                                             <Label Text="•" 
                                                    FontSize="11" 
-                                                   TextColor="#888"/>
+                                                   TextColor="#666"/>
                                             <Label Text="{Binding Clinica}" 
                                                    FontSize="11" 
-                                                   TextColor="#888"/>
+                                                   TextColor="#666"/>
                                         </HorizontalStackLayout>
-
-                                        <!-- STATUS -->
-                                        <Label Text="{Binding EstaVencida, Converter={x:StaticResource TextoStatusVacinaConverter}}" 
-                                               FontSize="11" 
-                                               FontAttributes="Bold"
-                                               TextColor="{Binding EstaVencida, Converter={x:StaticResource CorStatusVacinaConverter}}"
-                                               HorizontalOptions="End"/>
-                                    </VerticalStackLayout>
+                                    </Grid>
                                 </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

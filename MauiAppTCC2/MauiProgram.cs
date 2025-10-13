@@ -22,16 +22,18 @@ namespace MauiAppTCC2
             builder.Logging.AddDebug();
 #endif
 
-            // ✅ REGISTRE COMO SINGLETON (MESMA INSTÂNCIA SEMPRE)
+            // ✅ SERVICES - CONFIGURAÇÃO SQLITE
             builder.Services.AddSingleton<DatabaseContext>();
-            builder.Services.AddSingleton<INotificationService, NotificationService>();
+
+            // ✅ SE NÃO TEM NotificationService, COMENTE ESTA LINHA:
+            // builder.Services.AddSingleton<INotificationService, NotificationService>();
+
             builder.Services.AddTransient<PetViewModel>();
-            builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<AddPetPage>();
             builder.Services.AddTransient<VacinaListPage>();
-            builder.Services.AddTransient<VacinaListPage>();
             builder.Services.AddTransient<AddPetVacinaPage>();
-
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<PetViewModel>();
 
             return builder.Build();
         }

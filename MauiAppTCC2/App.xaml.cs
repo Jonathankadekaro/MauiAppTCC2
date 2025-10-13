@@ -1,4 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
+using MauiAppTCC2.ViewModels;
+using MauiAppTCC2.Data;
 
 namespace MauiAppTCC2
 {
@@ -8,20 +10,12 @@ namespace MauiAppTCC2
         {
             InitializeComponent();
 
-            // ✅ CONFIGURAR SHELL COM ROTAS
-            var shell = new Shell();
+            // ✅ SOLUÇÃO: CRIAR MANUALMENTE COM DEPENDÊNCIAS
+            var database = new DatabaseContext();
+            var viewModel = new PetViewModel(database);
+            var mainPage = new MainPage(viewModel);
 
-            // ✅ REGISTRAR ROTAS
-            Routing.RegisterRoute(nameof(AddPetPage), typeof(AddPetPage));
-            Routing.RegisterRoute(nameof(VacinaListPage), typeof(VacinaListPage));
-
-            // ✅ PÁGINA INICIAL
-            shell.CurrentItem = new ShellContent
-            {
-                Content = new MainPage()
-            };
-
-            MainPage = shell;
+            MainPage = new NavigationPage(mainPage);
         }
     }
 }

@@ -10,73 +10,71 @@ namespace MauiAppTCC2
         private int _petId;
         private string _petNome;
 
-        public VacinaListPage(DatabaseContext database)
+        public VacinaListPage(DatabaseContext database, int petId, string petNome)
         {
-            InitializeComponent();
-            _database = database;
+            try
+            {
+                InitializeComponent();
 
-            // CONFIGURAR BOTÃO
-            btnAddVacina.Clicked += OnAddVacinaClicked;
+                _database = database;
+                _petId = petId;
+                _petNome = petNome;
+
+                // ? APENAS O TÍTULO PRINCIPAL - SEGUNDA LINHA JÁ ESTÁ FIXA NO XAML
+                lblTitulo.Text = "Vacinas";
+                // Removeu a linha: lblPetNome.Text = _petNome;
+
+                btnAddVacina.Clicked += OnAddVacinaClicked;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"? ERRO: {ex.Message}");
+            }
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await CarregarDados();
-        }
-
-        private async Task CarregarDados()
-        {
-            try
-            {
-                // OBTER PET ID DOS PARÂMETROS
-                if (BindingContext is System.Collections.Generic.Dictionary<string, object> parameters)
-                {
-                    if (parameters.ContainsKey("PetId"))
-                    {
-                        _petId = (int)parameters["PetId"];
-
-                        // CARREGAR DADOS DO PET
-                        var pet = await _database.GetPetAsync(_petId);
-                        if (pet != null)
-                        {
-                            _petNome = pet.Nome;
-                            lblTitulo.Text = $"?? Vacinas";
-                            lblPetNome.Text = pet.Nome;
-                        }
-                    }
-                }
-
-                // CARREGAR VACINAS
-                await CarregarVacinas();
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Erro", $"Falha ao carregar dados: {ex.Message}", "OK");
-            }
+            await CarregarVacinas();
         }
 
         private async Task CarregarVacinas()
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"?? Carregando vacinas para pet ID: {_petId}");
+
                 var vacinas = await _database.GetVacinasByPetAsync(_petId);
+
+                // ? ATUALIZAR LISTA
                 vacinasCollection.ItemsSource = vacinas;
 
-                // ? ATUALIZAR CONTADOR
-                lblContador.Text = $"Total: {vacinas.Count} vacina(s)";
+                // ? ATUALIZAR CONTADOR (APENAS O NÚMERO)
+                lblContador.Text = $"{vacinas.Count}";
+
+                System.Diagnostics.Debug.WriteLine($"? {vacinas.Count} vacinas carregadas");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Erro", $"Falha ao carregar vacinas: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"? ERRO ao carregar vacinas: {ex.Message}");
+                await DisplayAlert("Erro", "Falha ao carregar vacinas", "OK");
             }
         }
 
-        private async void OnAddVacinaClicked(object sender, System.EventArgs e)
+        private async void OnAddVacinaClicked(object sender, EventArgs e)
         {
-            // ? ABRIR TELA DE CADASTRO DE VACINA
-            var addVacinaPage = new AddPetVacinaPage(_database, _petId, _petNome);
-            await Navigation.PushAsync(addVacinaPage);
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"?? Abrindo tela de adicionar vacina");
+
+                var addVacinaPage = new AddPetVacinaPage(_database, _petId, _petNome);
+                await Navigation.PushAsync(addVacinaPage);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"? ERRO: {ex.Message}");
+                await DisplayAlert("Erro", "Falha ao abrir tela de vacina", "OK");
+            }
         }
     }
 }

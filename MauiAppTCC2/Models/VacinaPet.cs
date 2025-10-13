@@ -38,5 +38,12 @@ namespace MauiAppTCC2.Models
 
         [Ignore]
         public bool VenceEm30Dias => DataValidade <= DateTime.Now.AddDays(30) && DataValidade > DateTime.Now;
+
+        // ✅ PROPRIEDADES PARA AS CORES E TEXTO DO STATUS
+        [Ignore]
+        public string StatusColor => EstaVencida ? "#FF4444" : "#4CAF50";
+
+        [Ignore]
+        public string StatusTexto => EstaVencida ? "VENCIDA" : "EM DIA";
     }
 }

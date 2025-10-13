@@ -36,12 +36,10 @@ namespace MauiAppTCC2.ViewModels
         public ICommand ShowVacinasCommand { get; }
         public ICommand RefreshCommand { get; }
 
-        // ✅ CONSTRUTOR PÚBLICO SEM PARÂMETROS (PARA XAML)
         public PetViewModel() : this(new DatabaseContext())
         {
         }
 
-        // ✅ CONSTRUTOR COM PARÂMETROS (PARA INJEÇÃO)
         public PetViewModel(DatabaseContext database)
         {
             _database = database;
@@ -51,11 +49,9 @@ namespace MauiAppTCC2.ViewModels
             DeletePetCommand = new Command<Pet>(async (pet) => await DeletePetAsync(pet));
             ShowVacinasCommand = new Command<int>(async (petId) => await ShowVacinasAsync(petId));
             RefreshCommand = new Command(async () => await LoadPetsAsync());
-
-            Task.Run(async () => await LoadPetsAsync());
         }
 
-        private async Task LoadPetsAsync()
+        public async Task LoadPetsAsync()
         {
             if (IsBusy) return;
 
@@ -64,16 +60,18 @@ namespace MauiAppTCC2.ViewModels
                 IsBusy = true;
                 var pets = await _database.GetPetsAsync();
 
-                Pets.Clear();
-                foreach (var pet in pets)
-                    Pets.Add(pet);
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Pets.Clear();
+                    foreach (var pet in pets)
+                        Pets.Add(pet);
+                });
 
-                // ✅ DEBUG: MOSTRA QUANTOS PETS FORAM CARREGADOS
                 System.Diagnostics.Debug.WriteLine($"✅ Pets carregados: {pets.Count}");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", $"Falha ao carregar pets: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar pets: {ex.Message}");
             }
             finally
             {
@@ -81,30 +79,32 @@ namespace MauiAppTCC2.ViewModels
             }
         }
 
-        private async Task AddPetAsync()
+        public async Task AddPetAsync()
         {
             try
             {
-                // ✅ USA A MESMA INSTÂNCIA DO DATABASE
                 var addPetPage = new AddPetPage(_database);
-
-                // ✅ EVENTO QUE GARANTE A ATUALIZAÇÃO
                 addPetPage.Disappearing += async (sender, e) =>
                 {
-                    await LoadPetsAsync(); // ✅ RECARREGA A LISTA
+                    await LoadPetsAsync();
                 };
 
                 await Application.Current.MainPage.Navigation.PushAsync(addPetPage);
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", $"Falha: {ex.Message}", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Erro", $"Falha: {ex.Message}", "OK");
+                }
             }
         }
 
         private async Task DeletePetAsync(Pet pet)
         {
             if (pet == null) return;
+
+            if (Application.Current?.MainPage == null) return;
 
             bool confirm = await Application.Current.MainPage.DisplayAlert(
                 "Confirmar Exclusão",
@@ -116,7 +116,13 @@ namespace MauiAppTCC2.ViewModels
                 try
                 {
                     await _database.DeletePetAsync(pet);
-                    await LoadPetsAsync(); // ✅ RECARREGA A LISTA
+                    await LoadPetsAsync();
+
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        Pets.Remove(pet);
+                    });
+
                     await Application.Current.MainPage.DisplayAlert("Sucesso", "Pet excluído com sucesso", "OK");
                 }
                 catch (Exception ex)
@@ -130,12 +136,30 @@ namespace MauiAppTCC2.ViewModels
         {
             try
             {
-                var parameters = new Dictionary<string, object> { { "PetId", petId } };
-                await Shell.Current.GoToAsync(nameof(VacinaListPage), parameters);
+                System.Diagnostics.Debug.WriteLine($"🔍 1. Iniciando navegação...");
+
+                // ✅ TESTE 1: Só criar a página (sem navegar)
+                System.Diagnostics.Debug.WriteLine($"🔍 2. Criando VacinaListPage...");
+                var vacinaListPage = new VacinaListPage(_database, petId, "Teste Pet");
+                System.Diagnostics.Debug.WriteLine($"🔍 3. Página criada com sucesso!");
+
+                // ✅ TESTE 2: Tentar navegar
+                System.Diagnostics.Debug.WriteLine($"🔍 4. Iniciando navegação...");
+                await Application.Current.MainPage.Navigation.PushAsync(vacinaListPage);
+                System.Diagnostics.Debug.WriteLine($"🔍 5. Navegação concluída!");
+
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", $"Erro ao abrir página de vacinas: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"❌ ERRO DETALHADO:");
+                System.Diagnostics.Debug.WriteLine($"❌ Mensagem: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Tipo: {ex.GetType()}");
+                System.Diagnostics.Debug.WriteLine($"❌ Local: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Inner Exception: {ex.InnerException.Message}");
+                }
             }
         }
 
@@ -143,14 +167,43 @@ namespace MauiAppTCC2.ViewModels
         {
             try
             {
-                Vacinas.Clear();
                 var vacinas = await _database.GetVacinasByPetAsync(petId);
-                foreach (var vacina in vacinas)
-                    Vacinas.Add(vacina);
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Vacinas.Clear();
+                    foreach (var vacina in vacinas)
+                        Vacinas.Add(vacina);
+                });
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", $"Falha ao carregar vacinas: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar vacinas: {ex.Message}");
+            }
+        }
+
+        public async Task SearchPetsAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                await LoadPetsAsync();
+                return;
+            }
+
+            try
+            {
+                var pets = await _database.SearchPetsAsync(searchTerm);
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Pets.Clear();
+                    foreach (var pet in pets)
+                        Pets.Add(pet);
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Erro na pesquisa: {ex.Message}");
             }
         }
     }

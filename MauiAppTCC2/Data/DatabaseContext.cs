@@ -1,21 +1,27 @@
 ﻿using MauiAppTCC2.Models;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System;
 
 namespace MauiAppTCC2.Data
 {
     public class DatabaseContext
     {
+        // 📊 DADOS EM MEMÓRIA
         private ObservableCollection<Pet> _pets = new ObservableCollection<Pet>();
-        private ObservableCollection<VacinaPet> _vacinas = new ObservableCollection<VacinaPet>(); // ✅ USANDO VacinaPet
+        private ObservableCollection<VacinaPet> _vacinas = new ObservableCollection<VacinaPet>();
         private int _nextPetId = 1;
         private int _nextVacinaId = 1;
 
         public DatabaseContext()
         {
-            _pets.Add(new Pet { Id = _nextPetId++, Nome = "Rex", Especie = "Cachorro", Raca = "Vira-lata", DataNascimento = DateTime.Now.AddYears(-2) });
-            _pets.Add(new Pet { Id = _nextPetId++, Nome = "Mimi", Especie = "Gato", Raca = "Siamês", DataNascimento = DateTime.Now.AddYears(-1) });
+            // ✅ REMOVIDOS OS PETS DE DEMONSTRAÇÃO AUTOMÁTICOS
+            // AGORA COMEÇA COM LISTA VAZIA
         }
 
+        // 📊 OPERAÇÕES PET
         public async Task<List<Pet>> GetPetsAsync()
         {
             await Task.Delay(100);
@@ -54,6 +60,7 @@ namespace MauiAppTCC2.Data
         {
             await Task.Delay(100);
 
+            // Deletar vacinas do pet
             var vacinasPet = _vacinas.Where(v => v.PetId == pet.Id).ToList();
             foreach (var vacina in vacinasPet)
             {
@@ -64,7 +71,8 @@ namespace MauiAppTCC2.Data
             return 1;
         }
 
-        public async Task<List<VacinaPet>> GetVacinasByPetAsync(int petId) // ✅ USANDO VacinaPet
+        // 💉 OPERAÇÕES VACINA
+        public async Task<List<VacinaPet>> GetVacinasByPetAsync(int petId)
         {
             await Task.Delay(100);
             return _vacinas.Where(v => v.PetId == petId)
@@ -72,7 +80,7 @@ namespace MauiAppTCC2.Data
                           .ToList();
         }
 
-        public async Task<int> SaveVacinaAsync(VacinaPet vacina) // ✅ USANDO VacinaPet
+        public async Task<int> SaveVacinaAsync(VacinaPet vacina)
         {
             await Task.Delay(100);
 
@@ -94,20 +102,20 @@ namespace MauiAppTCC2.Data
             }
         }
 
-        public async Task<int> DeleteVacinaAsync(VacinaPet vacina) // ✅ USANDO VacinaPet
+        public async Task<int> DeleteVacinaAsync(VacinaPet vacina)
         {
             await Task.Delay(100);
             _vacinas.Remove(vacina);
             return 1;
         }
 
-        public async Task<List<VacinaPet>> GetAllVacinasAsync() // ✅ USANDO VacinaPet
+        public async Task<List<VacinaPet>> GetAllVacinasAsync()
         {
             await Task.Delay(100);
             return _vacinas.ToList();
         }
 
-        public async Task<List<VacinaPet>> GetProximasVacinasVencerAsync() // ✅ USANDO VacinaPet
+        public async Task<List<VacinaPet>> GetProximasVacinasVencerAsync()
         {
             await Task.Delay(100);
             var dataLimite = DateTime.Now.AddDays(30);
@@ -117,7 +125,7 @@ namespace MauiAppTCC2.Data
                           .ToList();
         }
 
-        public async Task<List<VacinaPet>> GetVacinasVencidasAsync() // ✅ USANDO VacinaPet
+        public async Task<List<VacinaPet>> GetVacinasVencidasAsync()
         {
             await Task.Delay(100);
             return _vacinas.Where(v => v.DataValidade < DateTime.Now)

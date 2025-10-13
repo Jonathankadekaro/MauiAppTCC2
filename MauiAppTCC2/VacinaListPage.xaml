@@ -41,6 +41,13 @@
                     CornerRadius="12"
                     HorizontalOptions="Fill"/>
 
+            <!-- CONTADOR -->
+            <Label x:Name="lblContador"
+                   Text="Total: 0 vacina(s)"
+                   FontSize="14"
+                   TextColor="#666"
+                   HorizontalOptions="Center"/>
+
             <!-- LISTA DE VACINAS -->
             <Frame BackgroundColor="White" 
                    Padding="0"
@@ -133,6 +140,19 @@
                                             </Frame>
 
                                             <Label Text="{Binding Fabricante}" 
+                                                   FontSize="11" 
+                                                   TextColor="#888"/>
+                                        </HorizontalStackLayout>
+
+                                        <!-- VETERINÁRIO E CLÍNICA -->
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label Text="{Binding VeterinarioResponsavel}" 
+                                                   FontSize="11" 
+                                                   TextColor="#888"/>
+                                            <Label Text="•" 
+                                                   FontSize="11" 
+                                                   TextColor="#888"/>
+                                            <Label Text="{Binding Clinica}" 
                                                    FontSize="11" 
                                                    TextColor="#888"/>
                                         </HorizontalStackLayout>

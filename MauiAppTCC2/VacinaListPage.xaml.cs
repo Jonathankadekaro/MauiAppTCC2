@@ -62,6 +62,9 @@ namespace MauiAppTCC2
             {
                 var vacinas = await _database.GetVacinasByPetAsync(_petId);
                 vacinasCollection.ItemsSource = vacinas;
+
+                // ? ATUALIZAR CONTADOR
+                lblContador.Text = $"Total: {vacinas.Count} vacina(s)";
             }
             catch (Exception ex)
             {
@@ -71,8 +74,9 @@ namespace MauiAppTCC2
 
         private async void OnAddVacinaClicked(object sender, System.EventArgs e)
         {
-            await DisplayAlert("Adicionar Vacina",
-                $"Funcionalidade para adicionar vacina ao {_petNome} será implementada em breve!", "OK");
+            // ? ABRIR TELA DE CADASTRO DE VACINA
+            var addVacinaPage = new AddPetVacinaPage(_database, _petId, _petNome);
+            await Navigation.PushAsync(addVacinaPage);
         }
     }
 }

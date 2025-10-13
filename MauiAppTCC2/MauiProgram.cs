@@ -29,6 +29,7 @@ namespace MauiAppTCC2
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<AddPetPage>();
             builder.Services.AddTransient<VacinaListPage>();
+            builder.Services.AddTransient<VacinaListPage>();
 
             return builder.Build();
         }

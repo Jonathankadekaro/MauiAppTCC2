@@ -1,51 +1,78 @@
 using MauiAppTCC2.Data;
+using MauiAppTCC2.Models;
+using Microsoft.Maui.Controls;
 
 namespace MauiAppTCC2
 {
     public partial class VacinaListPage : ContentPage
     {
         private readonly DatabaseContext _database;
+        private int _petId;
+        private string _petNome;
 
         public VacinaListPage(DatabaseContext database)
         {
             InitializeComponent();
             _database = database;
 
-            // Configurar controles diretamente no construtor
-            lblTitulo.Text = "Carregando...";
-            lblMensagem.Text = "Aguarde...";
+            // CONFIGURAR BOTÃO
+            btnAddVacina.Clicked += OnAddVacinaClicked;
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            await CarregarDados();
+        }
 
+        private async Task CarregarDados()
+        {
             try
             {
-                if (BindingContext is Dictionary<string, object> parameters)
+                // OBTER PET ID DOS PARÂMETROS
+                if (BindingContext is System.Collections.Generic.Dictionary<string, object> parameters)
                 {
                     if (parameters.ContainsKey("PetId"))
                     {
-                        int petId = (int)parameters["PetId"];
-                        var pet = await _database.GetPetAsync(petId);
+                        _petId = (int)parameters["PetId"];
 
+                        // CARREGAR DADOS DO PET
+                        var pet = await _database.GetPetAsync(_petId);
                         if (pet != null)
                         {
-                            lblTitulo.Text = $"Vacinas de {pet.Nome}";
-                            lblMensagem.Text = $"Pet ID: {petId} carregado com sucesso!";
+                            _petNome = pet.Nome;
+                            lblTitulo.Text = $"?? Vacinas";
+                            lblPetNome.Text = pet.Nome;
                         }
                     }
                 }
+
+                // CARREGAR VACINAS
+                await CarregarVacinas();
             }
             catch (Exception ex)
             {
-                lblMensagem.Text = $"Erro: {ex.Message}";
+                await DisplayAlert("Erro", $"Falha ao carregar dados: {ex.Message}", "OK");
             }
         }
 
-        private async void BtnVoltar_Clicked(object sender, EventArgs e)
+        private async Task CarregarVacinas()
         {
-            await Shell.Current.GoToAsync("..");
+            try
+            {
+                var vacinas = await _database.GetVacinasByPetAsync(_petId);
+                vacinasCollection.ItemsSource = vacinas;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erro", $"Falha ao carregar vacinas: {ex.Message}", "OK");
+            }
+        }
+
+        private async void OnAddVacinaClicked(object sender, System.EventArgs e)
+        {
+            await DisplayAlert("Adicionar Vacina",
+                $"Funcionalidade para adicionar vacina ao {_petNome} será implementada em breve!", "OK");
         }
     }
 }

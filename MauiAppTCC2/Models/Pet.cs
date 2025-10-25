@@ -6,8 +6,11 @@ namespace MauiAppTCC2.Models
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-
+        [Indexed]
+        
+        public int UsuarioId { get; set; }
         [MaxLength(100)]
+
         public string Nome { get; set; }
 
         [MaxLength(50)]

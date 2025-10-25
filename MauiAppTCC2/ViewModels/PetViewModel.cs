@@ -51,14 +51,16 @@ namespace MauiAppTCC2.ViewModels
             RefreshCommand = new Command(async () => await LoadPetsAsync());
         }
 
-        public async Task LoadPetsAsync()
+        private async Task LoadPetsAsync()
         {
             if (IsBusy) return;
 
             try
             {
                 IsBusy = true;
-                var pets = await _database.GetPetsAsync();
+
+                // ✅ CARREGA APENAS OS PETS DO USUÁRIO LOGADO
+                var pets = await _database.GetPetsByUsuarioAsync(App.UsuarioLogado.Id);
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
@@ -67,7 +69,7 @@ namespace MauiAppTCC2.ViewModels
                         Pets.Add(pet);
                 });
 
-                System.Diagnostics.Debug.WriteLine($"✅ Pets carregados: {pets.Count}");
+                System.Diagnostics.Debug.WriteLine($"✅ Pets carregados: {pets.Count} para usuário {App.UsuarioLogado.Nome}");
             }
             catch (Exception ex)
             {

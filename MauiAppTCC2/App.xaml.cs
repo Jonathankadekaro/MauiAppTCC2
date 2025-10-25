@@ -1,21 +1,21 @@
-﻿using Microsoft.Maui.Controls;
-using MauiAppTCC2.ViewModels;
-using MauiAppTCC2.Data;
+﻿using MauiAppTCC2.Data;
+using MauiAppTCC2.Models;
+using Microsoft.Maui.Controls;
 
 namespace MauiAppTCC2
 {
     public partial class App : Application
     {
+        // ✅ PROPRIEDADE GLOBAL PARA ACESSAR O USUÁRIO LOGADO
+        public static Usuario UsuarioLogado { get; set; }
+
         public App()
         {
             InitializeComponent();
 
-            // ✅ SOLUÇÃO: CRIAR MANUALMENTE COM DEPENDÊNCIAS
+            // ✅ INICIA COM A TELA DE LOGIN
             var database = new DatabaseContext();
-            var viewModel = new PetViewModel(database);
-            var mainPage = new MainPage(viewModel);
-
-            MainPage = new NavigationPage(mainPage);
+            MainPage = new NavigationPage(new LoginPage(database));
         }
     }
 }

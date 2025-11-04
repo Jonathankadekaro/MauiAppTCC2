@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiAppTCC2.LoginPage"
-             Title="Login"
+             x:Class="MauiAppTCC2.CriarContaPage"
+             Title="Criar Conta"
              BackgroundColor="#F8F9FA">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="30" Padding="30" VerticalOptions="Center">
+        <VerticalStackLayout Spacing="30" Padding="30" VerticalOptions="Start">
 
             <!-- LOGO -->
-            <Frame BackgroundColor="#512BD4" 
+            <Frame BackgroundColor="#4CAF50" 
                    Padding="40,25"
                    CornerRadius="25"
                    HorizontalOptions="Center"
@@ -19,7 +19,7 @@
                     <Label Text="🐾" 
                            FontSize="45" 
                            HorizontalOptions="Center"/>
-                    <Label Text="PetVaccine" 
+                    <Label Text="Nova Conta" 
                            FontSize="28" 
                            FontAttributes="Bold"
                            TextColor="White"
@@ -27,25 +27,44 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- FORMULÁRIO DE LOGIN -->
+            <!-- FORMULÁRIO DE CADASTRO -->
             <Frame BackgroundColor="White" 
                    Padding="30,25"
                    CornerRadius="20"
                    HasShadow="True"
                    BorderColor="#E0E0E0">
-                <VerticalStackLayout Spacing="25">
-                    <Label Text="Bem-vindo de volta!" 
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Crie sua conta gratuita" 
                            FontSize="22" 
                            FontAttributes="Bold"
                            TextColor="#333"
                            HorizontalOptions="Center"/>
+
+                    <!-- NOME -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="👤 Nome completo" 
+           FontSize="16" 
+           FontAttributes="Bold"
+           TextColor="#4CAF50"/>
+                        <Frame BackgroundColor="#F8F9FA" 
+           Padding="15,0"
+           CornerRadius="12"
+           BorderColor="#E0E0E0"
+           HasShadow="False">
+                            <Entry x:Name="entryNome" 
+               Placeholder="Seu nome completo"
+               FontSize="16"
+               TextColor="#333"
+               BackgroundColor="Transparent"/>
+                        </Frame>
+                    </VerticalStackLayout>
 
                     <!-- EMAIL -->
                     <VerticalStackLayout Spacing="8">
                         <Label Text="📧 Email" 
            FontSize="16" 
            FontAttributes="Bold"
-           TextColor="#512BD4"/>
+           TextColor="#4CAF50"/>
                         <Frame BackgroundColor="#F8F9FA" 
            Padding="15,0"
            CornerRadius="12"
@@ -65,24 +84,45 @@
                         <Label Text="🔒 Senha" 
            FontSize="16" 
            FontAttributes="Bold"
-           TextColor="#512BD4"/>
+           TextColor="#4CAF50"/>
                         <Frame BackgroundColor="#F8F9FA" 
            Padding="15,0"
            CornerRadius="12"
            BorderColor="#E0E0E0"
            HasShadow="False">
                             <Entry x:Name="entrySenha" 
-               Placeholder="Sua senha"
+               Placeholder="Mínimo 6 caracteres"
                IsPassword="True"
                FontSize="16"
                TextColor="#333"
                BackgroundColor="Transparent"/>
                         </Frame>
                     </VerticalStackLayout>
+
+                    <!-- CONFIRMAR SENHA -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="✅ Confirmar senha" 
+           FontSize="16" 
+           FontAttributes="Bold"
+           TextColor="#4CAF50"/>
+                        <Frame BackgroundColor="#F8F9FA" 
+           Padding="15,0"
+           CornerRadius="12"
+           BorderColor="#E0E0E0"
+           HasShadow="False">
+                            <Entry x:Name="entryConfirmarSenha" 
+               Placeholder="Digite novamente a senha"
+               IsPassword="True"
+               FontSize="16"
+               TextColor="#333"
+               BackgroundColor="Transparent"/>
+                        </Frame>
+                    </VerticalStackLayout>
+
                     <!-- BOTÕES -->
-                    <Button Text="🔐 Entrar na minha conta" 
-                            Clicked="OnLoginClicked"
-                            BackgroundColor="#512BD4"
+                    <Button Text="📝 Criar minha conta" 
+                            Clicked="OnCriarContaClicked"
+                            BackgroundColor="#4CAF50"
                             TextColor="White"
                             FontSize="18"
                             FontAttributes="Bold"
@@ -91,14 +131,13 @@
                             HorizontalOptions="Fill"
                             Margin="0,10,0,0"/>
 
-                    <Button Text="📝 Criar nova conta" 
-                            Clicked="OnCriarContaClicked"
+                    <Button Text="↩️ Voltar para login" 
+                            Clicked="OnVoltarClicked"
                             BackgroundColor="Transparent"
-                            TextColor="#512BD4"
-                            BorderColor="#512BD4"
-                            BorderWidth="2"
+                            TextColor="#666"
+                            BorderColor="#666"
+                            BorderWidth="1"
                             FontSize="16"
-                            FontAttributes="Bold"
                             HeightRequest="50"
                             CornerRadius="10"
                             HorizontalOptions="Fill"/>
@@ -107,7 +146,7 @@
             </Frame>
 
             <!-- RODAPÉ -->
-            <Label Text="Sistema de controle de vacinas para pets" 
+            <Label Text="Todos os seus dados ficam protegidos e seguros" 
                    FontSize="14" 
                    TextColor="#666"
                    HorizontalOptions="Center"

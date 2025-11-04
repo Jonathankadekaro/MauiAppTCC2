@@ -53,9 +53,8 @@ namespace MauiAppTCC2
 
         private async void OnCriarContaClicked(object sender, EventArgs e)
         {
-            // ? COMENTE POR ENQUANTO - VAMOS CRIAR DEPOIS
-            // await Navigation.PushAsync(new CriarContaPage(_database));
-            await DisplayAlert("Em breve", "Funcionalidade de criar conta em desenvolvimento!", "OK");
+            // ? AGORA DESCOMENTADO E FUNCIONAL
+            await Navigation.PushAsync(new CriarContaPage(_database));
         }
     }
 }
